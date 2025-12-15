@@ -13,28 +13,28 @@
     </style>
 </head>
 <body>
-    <h1>Debug Socket.IO Chat</h1>
-    
+    <h1>Depuração Socket.IO</h1>
+
     <div>
         <input id="user" placeholder="Nome do utilizador" value="TestUser">
         <button onclick="testJoin()">Entrar na Sala</button>
     </div>
-    
+
     <div>
         <input id="msg" placeholder="Escrever mensagem" disabled>
         <button onclick="testSendMessage()" disabled id="sendBtn">Enviar</button>
     </div>
-    
-    <h3>Logs:</h3>
+
+    <h3>Registos:</h3>
     <div id="logs"></div>
-    
+
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script>
         const socket = io("http://localhost:5000");
         let roomCode = "3B4KIN";
         let username = "";
         let joined = false;
-        
+
         function addLog(message, type = "info") {
             const logsDiv = document.getElementById("logs");
             const entry = document.createElement("div");
@@ -44,45 +44,45 @@
             logsDiv.scrollTop = logsDiv.scrollHeight;
             console.log(`[${type}]`, message);
         }
-        
+
         socket.on("connect", () => {
             addLog("✓ Socket conectado com ID: " + socket.id, "success");
         });
-        
+
         socket.on("disconnect", () => {
             addLog("✗ Socket desconectado", "error");
             joined = false;
         });
-        
+
         socket.on("connect_error", err => {
             addLog("✗ Erro de conexão: " + err, "error");
         });
-        
+
         function testJoin() {
             username = document.getElementById("user").value.trim();
             if (!username) {
                 addLog("Erro: Nome vazio", "error");
                 return;
             }
-            
+
             addLog(`Tentando entrar na sala "${roomCode}" com utilizador "${username}"`, "info");
             socket.emit("join", { username: username, room: roomCode }, (ack) => {
                 addLog("Resposta do servidor ao join: " + JSON.stringify(ack), "info");
             });
-            
+
             joined = true;
             document.getElementById("msg").disabled = false;
             document.getElementById("sendBtn").disabled = false;
             document.getElementById("sendBtn").textContent = "Enviar";
         }
-        
+
         function testSendMessage() {
             const msgText = document.getElementById("msg").value.trim();
             if (!msgText) {
                 addLog("Erro: Mensagem vazia", "error");
                 return;
             }
-            
+
             addLog(`Enviando: "${msgText}" para sala "${roomCode}"`, "info");
             socket.emit("message", {
                 user: username,
@@ -91,14 +91,14 @@
             }, (ack) => {
                 addLog("Resposta do servidor ao message: " + JSON.stringify(ack), "info");
             });
-            
+
             document.getElementById("msg").value = "";
         }
-        
+
         socket.on("message", (data) => {
             addLog("Mensagem recebida: " + data, "success");
         });
-        
+
         socket.on("response", (data) => {
             addLog("Resposta do servidor: " + JSON.stringify(data), "success");
         });

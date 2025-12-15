@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anarcroom - Sala {{ codigo }}</title>
+    <title>ANARCROOM - Sala {{ codigo }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='anarcroom.css') }}">
 </head>
 <body>
     <div class="container">
         <div class="anarcho-logo">A</div>
         
-    <h1>Anarcroom</h1>
+    <h1>ANARCROOM</h1>
         <p class="tagline-aggressive">Sala: {{ codigo }}</p>
         
         <hr>
@@ -19,8 +19,8 @@
         <div class="section" id="joinSection">
             <h2>Entrar na Sala</h2>
             <div class="form-group">
-                <label for="user">Escolhe um nome de utilizador:</label>
-                <input id="user" type="text" placeholder="O teu nome" required style="width: 100%;">
+                <label for="user">Escolhe um nome de guerreiro:</label>
+                <input id="user" type="text" placeholder="Teu nome anarcista" required style="width: 100%;">
             </div>
             <button onclick="entrar()" style="width: 100%;">
                 ⊙ Entrar e Começar a Destruir ⊙
@@ -37,7 +37,7 @@
             <div id="messages"></div>
             
             <div class="form-group" style="margin-top: 20px;">
-                <input id="msg" type="text" placeholder="Escreve a mensagem" style="width: 100%; margin-bottom: 10px;">
+                <input id="msg" type="text" placeholder="Escreve tua mensagem revolucionária..." style="width: 100%; margin-bottom: 10px;">
                 <button id="btnEnviar" onclick="enviar()" style="width: 100%;">
                     ⊙ Enviar Mensagem ⊙
                 </button>

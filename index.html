@@ -1,11 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-    <title>Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANARCROOM - Conversas sem Rastros</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='anarcroom.css') }}">
 </head>
 <body>
-    <h1>Bem-vindo ao ChatApp</h1>
-    <a href="{{ url_for('criar') }}">Criar Sala</a><br>
-    <a href="{{ url_for('entrar') }}">Entrar na Sala</a>
+    <div class="container">
+        <div class="anarcho-logo">A</div>
+        
+    <h1>ANARCROOM</h1>
+        
+        <p class="tagline-aggressive">▂ Conversas sem rastros ▂</p>
+        <p class="tagline-aggressive">▂ Tudo é destruído quando todos saem ▂</p>
+        
+        <hr>
+        
+        <div class="section">
+            <h2>Bem-vindo ao Caos Digital</h2>
+            <p class="tagline">Crie uma sala anarcista ou entre numa existente.<br>Sem histórico. Sem vigilância. Apenas conversas efêmeras.</p>
+        </div>
+        
+        <div class="section" style="text-align: center;">
+            <div class="form-group">
+                <a href="{{ url_for('criar') }}" class="btn-link" style="display: inline-block; width: 80%; padding: 15px; background-color: #ff1a1a; color: #000; text-decoration: none; border: none; font-family: 'Bebas Neue', cursive; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 30px rgba(255, 0, 0, 0.6); margin: 10px auto; border: 2px solid #ff1a1a;">
+                    ⊙ Criar Sala ANARCROOM ⊙
+                </a>
+            </div>
+            
+            <div class="form-group">
+                <a href="{{ url_for('entrar') }}" class="btn-link" style="display: inline-block; width: 80%; padding: 15px; background-color: #ff1a1a; color: #000; text-decoration: none; border: none; font-family: 'Bebas Neue', cursive; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 30px rgba(255, 0, 0, 0.6); margin: 10px auto; border: 2px solid #ff1a1a;">
+                    ⊙ Entrar com Código ⊙
+                </a>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <p class="tagline" style="text-align: center; margin-top: 40px; font-size: 0.85rem;">
+            Liberdade de expressão sem limites • Sem registros • Sem vigilância • Sem medo
+        </p>
+    </div>
 </body>
 </html>
