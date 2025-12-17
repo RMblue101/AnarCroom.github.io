@@ -1,47 +1,61 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ANARCROOM - Conversas sem Rastros</title>
-        <link rel="stylesheet" href="anarcroom.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANARCROOM - Entrar na Sala</title>
+<link rel="stylesheet" href="anarcroom.css">
 </head>
 <body>
-    <div class="container">
-        <div class="anarcho-logo">A</div>
-        
-    <h1>ANARCROOM</h1>
-        
-        <p class="tagline-aggressive">▂ Conversas sem rastros ▂</p>
-        <p class="tagline-aggressive">▂ Tudo é destruído quando todos saem ▂</p>
-        
-        <hr>
-        
-        <div class="section">
-            <h2>Bem-vindo ao Caos Digital</h2>
-            <p class="tagline">Crie uma sala anarcista ou entre numa existente.<br>Sem histórico. Sem vigilância. Apenas conversas efêmeras.</p>
-        </div>
-        
-        <div class="section" style="text-align: center;">
-            <div class="form-group">
-                <a href="static" class="btn-link" style="display: inline-block; width: 80%; padding: 15px; background-color: #ff1a1a; color: #000; text-decoration: none; border: none; font-family: 'Bebas Neue', cursive; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 30px rgba(255, 0, 0, 0.6); margin: 10px auto; border: 2px solid #ff1a1a;">
-                    ⊙ Criar Sala ANARCROOM ⊙
-                </a>
-            </div>
-            
-            <div class="form-group">
-                <a href="static" class="btn-link" style="display: inline-block; width: 80%; padding: 15px; background-color: #ff1a1a; color: #000; text-decoration: none; border: none; font-family: 'Bebas Neue', cursive; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 30px rgba(255, 0, 0, 0.6); margin: 10px auto; border: 2px solid #ff1a1a;">
-                    ⊙ Entrar com Código ⊙
-                </a>
-            </div>
-        </div>
-        
-        <hr>
-        
-        <p class="tagline" style="text-align: center; margin-top: 40px; font-size: 0.85rem;">
-            Liberdade de expressão sem limites • Sem registros • Sem vigilância • Sem medo
-        </p>
-    </div>
-</body>
+<div class="container">
+  <div class="anarcho-logo">A</div>
+  <h1>ANARCROOM</h1>
+  <h2>Entrar na Sala</h2>
+  <p class="tagline">Introduz o código para partilhar com outros utilizadores</p>
+  <hr>
+  <div class="section">
+    <p style="font-size: 0.95rem; margin-bottom: 10px;">Cria uma sala com código aleatório:</p>
+    <button onclick="criarSalaAleatoria()" style="padding:12px 24px; background:#ff1a1a; color:#000; border:2px solid #ff1a1a; font-family:'Bebas Neue', cursive; font-size:1.1rem; text-transform:uppercase; letter-spacing:2px; cursor:pointer;">⊙ Gerar Sala Aleatória ⊙</button>
+  </div>
+  <hr>
+  <p style="text-align: center; font-size: 0.9rem; margin: 15px 0;">OU</p>
+  <div class="section">
+    <p style="font-size: 0.95rem; margin-bottom: 10px;">Entra numa sala existente:</p>
+    <input type="text" id="codigo" placeholder="A1B2C3" maxlength="6" autocomplete="off" style="text-transform: uppercase; text-align:center;">
+    <button onclick="entrarSala()" style="padding:12px 24px; background:#ff1a1a; color:#000; border:2px solid #ff1a1a; font-family:'Bebas Neue', cursive; font-size:1.1rem; text-transform:uppercase; letter-spacing:2px; cursor:pointer;">⊙ Entrar na Sala de Caos ⊙</button>
+  </div>
+  <hr>
+  <p class="tagline" style="text-align: center;">Sem histórico. Sem medo. Apenas caos controlado.</p>
+</div>
 
+<script>
+function gerarCodigoAleatorio() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let codigo = '';
+  for (let i = 0; i < 6; i++) {
+    codigo += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return codigo;
+}
+
+function criarSalaAleatoria() {
+  const codigo = gerarCodigoAleatorio();
+  window.location.href = `chat.html?room=${codigo}`;
+}
+
+function entrarSala() {
+  const codigo = document.getElementById("codigo").value.trim().toUpperCase();
+  if (!codigo || codigo.length !== 6) {
+    alert("O código deve ter exatamente 6 caracteres!");
+    return;
+  }
+  // Navegação usando query string
+  window.location.href = `chat.html?room=${codigo}`;
+}
+
+document.getElementById("codigo").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") entrarSala();
+});
+</script>
+</body>
 </html>
