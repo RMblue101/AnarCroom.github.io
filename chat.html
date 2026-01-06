@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ANARCROOM - Sala de Chat</title>
   <link rel="stylesheet" href="anarcroom.css">
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
 </head>
 <body>
   <div class="container">
@@ -50,25 +48,13 @@
     </div>
   </div>
 
-  <script src="static/firebase-config.js"></script>
   <script>
-    // Firebase Real-time Chat - Professional Version
+    // LocalStorage-only chat (no Firebase)
     const params = new URLSearchParams(window.location.search);
     const room = params.get('room') || 'default';
     document.getElementById('roomLabel').textContent = 'Sala: ' + room.toUpperCase();
 
     let username = '';
-    let database;
-
-    // Inicializar Firebase
-    setTimeout(() => {
-      try {
-        database = firebase.database();
-      } catch (e) {
-        console.error('Firebase error:', e);
-        alert('Erro ao conectar Firebase. Verifique firebase-config.js');
-      }
-    }, 100);
 
     function formatTime(timestamp) {
       return new Date(timestamp).toLocaleTimeString('pt-PT', { 
@@ -78,33 +64,33 @@
       });
     }
 
+    function storageKey(r){ return 'anarcroom_msgs_' + r; }
+
     function loadMessages() {
-      if (!database) return;
-      const ref = firebase.database().ref('rooms/' + room + '/messages');
-      ref.on('value', (snapshot) => {
-        const container = document.getElementById('messages');
-        container.innerHTML = '';
-        
-        const msgs = snapshot.val();
-        if (!msgs) {
-          const p = document.createElement('p');
-          p.textContent = '(Sem mensagens ainda)';
-          p.style.color = '#666';
-          p.style.textAlign = 'center';
-          p.style.fontStyle = 'italic';
-          container.appendChild(p);
-          return;
-        }
-        
-        Object.values(msgs).sort((a, b) => a.time - b.time).forEach(m => {
-          const p = document.createElement('p');
-          const t = formatTime(m.time);
-          const user_upper = m.user.toUpperCase();
-          p.textContent = `[${t}] ${user_upper}: ${m.msg}`;
-          container.appendChild(p);
-        });
-        container.scrollTop = container.scrollHeight;
+      const container = document.getElementById('messages');
+      container.innerHTML = '';
+      const raw = localStorage.getItem(storageKey(room));
+      let msgs = [];
+      try { msgs = raw ? JSON.parse(raw) : []; } catch(e){ msgs = []; }
+
+      if (!msgs.length) {
+        const p = document.createElement('p');
+        p.textContent = '(Sem mensagens ainda)';
+        p.style.color = '#666';
+        p.style.textAlign = 'center';
+        p.style.fontStyle = 'italic';
+        container.appendChild(p);
+        return;
+      }
+
+      msgs.sort((a,b)=> a.time - b.time).forEach(m => {
+        const p = document.createElement('p');
+        const t = formatTime(m.time);
+        const user_upper = (m.user||'anon').toUpperCase();
+        p.textContent = `[${t}] ${user_upper}: ${m.msg}`;
+        container.appendChild(p);
       });
+      container.scrollTop = container.scrollHeight;
     }
 
     window.entrar = function() {
@@ -113,11 +99,7 @@
         alert('Por favor, introduz um nome de utilizador');
         return;
       }
-      if (!database) {
-        alert('Firebase ainda não ligado. Tenta de novo.');
-        return;
-      }
-      
+
       document.getElementById('joinSection').style.display = 'none';
       document.getElementById('chat').style.display = 'block';
       document.getElementById('userGreeting').textContent = 'Bem-vindo, ' + username.toUpperCase();
@@ -126,21 +108,18 @@
     };
 
     window.enviar = function() {
-      if (!database) return alert('Firebase desligado');
-      
       const txt = document.getElementById('msg').value.trim();
       if (!txt) return;
-      
-      const ref = firebase.database().ref('rooms/' + room + '/messages');
-      ref.push({
-        user: username,
-        msg: txt,
-        time: Date.now()
-      }).catch(err => {
-        alert('Erro ao enviar: ' + err.message);
-      });
-      
+
+      const raw = localStorage.getItem(storageKey(room));
+      let msgs = [];
+      try { msgs = raw ? JSON.parse(raw) : []; } catch(e){ msgs = []; }
+
+      msgs.push({ user: username, msg: txt, time: Date.now() });
+      try { localStorage.setItem(storageKey(room), JSON.stringify(msgs)); } catch(e){ alert('Erro ao gravar localStorage: ' + e.message); }
+
       document.getElementById('msg').value = '';
+      loadMessages();
       document.getElementById('msg').focus();
     };
 
