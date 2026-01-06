@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Debug Chat Firebase</title>
+    <link rel="stylesheet" href="anarcroom.css">
     <style>
         body { font-family: Arial; margin: 20px; }
         #logs { border: 1px solid #ccc; height: 300px; overflow: auto; padding: 10px; background: #f9f9f9; margin: 10px 0; }
@@ -23,6 +24,9 @@
         <input id="dbg_user" placeholder="Nome" value="DebugUser">
         <button onclick="dbgOpen()">Abrir Sala</button>
         <button onclick="dbgClear()">Limpar Mensagens (local)</button>
+        <button onclick="dbgInitFirebase()">Iniciar Firebase (teste)</button>
+        <button onclick="dbgFetchFirebase()">Buscar Mensagens (Firebase)</button>
+        <button onclick="dbgClearFirebase()">Limpar Mensagens (Firebase)</button>
     </div>
 
     <div style="margin-top:10px;">Abra <code>chat.html?room=TEU_CODIGO</code> para testar em modo estático.</div>
@@ -37,6 +41,85 @@
         const r = document.getElementById('dbg_room').value.trim() || 'TEST123';
         localStorage.removeItem('anarcroom_msgs_' + r);
         alert('Mensagens locais removidas para a sala ' + r);
+        log(`Local messages cleared for ${r}`, 'success');
+    }
+
+    // --- logging helper ---
+    function log(msg, type){
+        const box = document.getElementById('logs') || (() => { const d=document.createElement('div'); d.id='logs'; document.body.appendChild(d); return d; })();
+        const el = document.createElement('div'); el.className = 'log-entry ' + (type||'info');
+        el.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        box.appendChild(el);
+        box.scrollTop = box.scrollHeight;
+    }
+
+    // --- Firebase debug helpers ---
+    // Try to include firebase-config.js in the same folder; include SDKs below (compat builds)
+    (function addFirebaseSDKs(){
+        const s1 = document.createElement('script'); s1.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js'; s1.defer = true; document.head.appendChild(s1);
+        const s2 = document.createElement('script'); s2.src = 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js'; s2.defer = true; document.head.appendChild(s2);
+        // attempt to load a local firebase-config.js if present (it's OK if it's 404)
+        const s3 = document.createElement('script'); s3.src = 'firebase-config.js'; s3.defer = true; document.head.appendChild(s3);
+    })();
+
+    let _firebaseInited = false;
+    function dbgInitFirebase(){
+        if(_firebaseInited){ log('Firebase já inicializado', 'info'); return; }
+        if(typeof firebase === 'undefined'){
+            log('SDK do Firebase ainda não carregado. Aguarde 1–2s e tente novamente.', 'error');
+            setTimeout(dbgInitFirebase, 1500);
+            return;
+        }
+        if(typeof window.firebaseConfig === 'undefined'){
+            log('Nenhuma configuração `firebaseConfig` encontrada. Crie `firebase-config.js` com o objeto firebaseConfig.', 'error');
+            return;
+        }
+        try{
+            firebase.initializeApp(window.firebaseConfig);
+            _firebaseInited = true;
+            log('Firebase inicializado com sucesso (modo debug).', 'success');
+        }catch(e){
+            log('Erro ao inicializar Firebase: ' + e.message, 'error');
+        }
+    }
+
+    function dbgFetchFirebase(){
+        const r = document.getElementById('dbg_room').value.trim() || 'TEST123';
+        if(!ensureFirebase()) return;
+        const ref = firebase.database().ref(`rooms/${r}/messages`);
+        ref.once('value').then(snap => {
+            const data = snap.val();
+            if(!data){ log('Nenhuma mensagem encontrada em Firebase para a sala ' + r, 'info'); return; }
+            log(`Mensagens from Firebase for ${r}:`, 'info');
+            const keys = Object.keys(data).sort((a,b)=> (data[a].ts||0) - (data[b].ts||0));
+            keys.forEach(k => {
+                const m = data[k];
+                log(`${m.user || 'anon'}: ${m.text || ''} (${new Date(m.ts||0).toLocaleString()})`, 'info');
+            });
+        }).catch(err => log('Erro ao buscar mensagens: ' + err.message, 'error'));
+    }
+
+    function dbgClearFirebase(){
+        const r = document.getElementById('dbg_room').value.trim() || 'TEST123';
+        if(!ensureFirebase()) return;
+        if(!confirm('Remover todas as mensagens da sala ' + r + ' no Firebase?')) return;
+        const ref = firebase.database().ref(`rooms/${r}/messages`);
+        ref.remove().then(()=> log('Mensagens removidas do Firebase para ' + r, 'success'))
+            .catch(err => log('Erro ao limpar Firebase: ' + err.message, 'error'));
+    }
+
+    function ensureFirebase(){
+        if(_firebaseInited) return true;
+        if(typeof window.firebaseConfig === 'undefined'){
+            log('firebaseConfig ausente — não é possível usar Firebase.', 'error');
+            return false;
+        }
+        if(typeof firebase === 'undefined'){
+            log('SDK do Firebase não carregado ainda. Aguarde e tente novamente.', 'error');
+            return false;
+        }
+        dbgInitFirebase();
+        return _firebaseInited;
     }
     </script>
 </body>
